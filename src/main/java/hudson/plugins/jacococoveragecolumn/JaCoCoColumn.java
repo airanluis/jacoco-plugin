@@ -76,12 +76,14 @@ public class JaCoCoColumn extends ListViewColumn {
 	}
 
 	public BigDecimal getOverallCoverage(final Job<?, ?> job) {
+		System.out.println("getOverallCoverage");
 		final Run<?, ?> lastSuccessfulBuild = job.getLastSuccessfulBuild();
 		return BigDecimal.valueOf(getOverallPercent(lastSuccessfulBuild));
 	}
 
 	private Double getOverallPercent(final Run<?, ?> lastSuccessfulBuild) {
 		final Float percentageFloat = getPercentageFloat(lastSuccessfulBuild);
+		System.out.println("percentageFloat: "+percentageFloat);
 		final double doubleValue = percentageFloat.doubleValue();
 
 		final int decimalPlaces = 2;
@@ -105,13 +107,28 @@ public class JaCoCoColumn extends ListViewColumn {
 			return 0f;
 		}
 
+		final double branch_dividend = action.getBranchCoverage().getPercentageFloat() * 0.01 * action.getBranchCoverage().getTotal();
+
+		System.out.println("branch_dividend: "+branch_dividend);
+
+		System.out.println("action.getPercentage(): "+action.getBranchCoverage().getPercentage());
+		System.out.println("action.getPercentageFloat(): "+action.getBranchCoverage().getPercentageFloat());
+		System.out.println("action.getBranchCoverage(): "+action.getBranchCoverage());
+		System.out.println("action.getLineCoverage(): "+action.getLineCoverage());
+
 		if (!action.hasLineCoverage() || action.getBranchCoverage().getTotal() == 0) {
 			return 100f;
 		}
-		final int dividend = action.getBranchCoverage().getCovered() + action.getBranchCoverage().getMissed() + action.getLineCoverage().getCovered();
-		final int divisor = (2 * action.getLineCoverage().getTotal()) + action.getBranchCoverage().getTotal();
 
-		return (float) (dividend / divisor);
+
+		final double dividend = branch_dividend + action.getLineCoverage().getCovered();
+		System.out.println("dividend: "+dividend);
+		final double divisor = action.getBranchCoverage().getTotal() + action.getLineCoverage().getTotal();
+		System.out.println("divisor: "+divisor);
+
+		System.out.println( (dividend / divisor) * 100);
+
+		return (float) (dividend / divisor) * 100;
 	}
 
 	@Extension
