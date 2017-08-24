@@ -32,11 +32,11 @@ THE SOFTWARE.
       <relativePath />
    </parent>
 
-   <artifactId>jacoco</artifactId>
-   <version>2.3-SNAPSHOT</version>
+   <artifactId>op3n-jacoco</artifactId>
+   <version>1.0.0-SNAPSHOT</version>
    <packaging>hpi</packaging>
 
-   <name>Jenkins JaCoCo plugin</name>
+   <name>Op3n JaCoCo plugin</name>
    <url>https://wiki.jenkins-ci.org/display/JENKINS/JaCoCo+Plugin</url>
    <licenses>
       <license>

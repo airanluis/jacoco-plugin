@@ -43,7 +43,7 @@ public class JaCoCoColumnTest {
 		final Job<?, ?> mockJob = new ExternalJobExtensionWithNoLastBuild("externaljob");
 		assertFalse(jacocoColumn.hasCoverage(mockJob));
 		assertEquals("N/A", jacocoColumn.getPercent(mockJob));
-		assertEquals(new BigDecimal("0.0"), jacocoColumn.getLineCoverage(mockJob));
+		assertEquals(new BigDecimal("0.0"), jacocoColumn.getOverallCoverage(mockJob));
 		
 		EasyMock.verify(context);
 	}
@@ -57,7 +57,7 @@ public class JaCoCoColumnTest {
 		final Job<?, ?> mockJob = new ExternalJobExtension("externaljob");
 		assertFalse(jacocoColumn.hasCoverage(mockJob));
 		assertEquals("N/A", jacocoColumn.getPercent(mockJob));
-		assertEquals(new BigDecimal("0.0"), jacocoColumn.getLineCoverage(mockJob));
+		assertEquals(new BigDecimal("0.0"), jacocoColumn.getOverallCoverage(mockJob));
 
 		EasyMock.verify(context);
 	}
@@ -89,7 +89,7 @@ public class JaCoCoColumnTest {
 		};
 		assertTrue(jacocoColumn.hasCoverage(mockJob));
 		assertEquals("100.0", jacocoColumn.getPercent(mockJob));
-		assertEquals(new BigDecimal("100.0"), jacocoColumn.getLineCoverage(mockJob));
+		assertEquals(new BigDecimal("100.0"), jacocoColumn.getOverallCoverage(mockJob));
 
 		EasyMock.verify(context);
 	}

@@ -5,18 +5,15 @@ import hudson.model.Descriptor;
 import hudson.model.Job;
 import hudson.model.Run;
 import hudson.plugins.jacoco.JacocoBuildAction;
-import hudson.plugins.jacoco.model.Coverage;
-import hudson.views.ListViewColumnDescriptor;
 import hudson.views.ListViewColumn;
-
-import java.awt.Color;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-
+import hudson.views.ListViewColumnDescriptor;
 import net.sf.json.JSONObject;
-
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
+
+import java.awt.*;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 /**
  * View column that shows the code coverage (line) percentage
@@ -35,7 +32,7 @@ public class JaCoCoColumn extends ListViewColumn {
 		} else if (lastSuccessfulBuild.getAction(JacocoBuildAction.class) == null){
 			return false;
 		}
-		
+
 		return true;
 	}
 
@@ -46,7 +43,7 @@ public class JaCoCoColumn extends ListViewColumn {
 			stringBuilder.append("N/A");
 		} else {
 			final Run<?, ?> lastSuccessfulBuild = job.getLastSuccessfulBuild();
-			final Double percent = getLinePercent(lastSuccessfulBuild);
+			final Double percent = getOverallPercent(lastSuccessfulBuild);
 			stringBuilder.append(percent);
 		}
 
@@ -78,12 +75,12 @@ public class JaCoCoColumn extends ListViewColumn {
 		return CoverageRange.colorAsHexString(c);
 	}
 
-	public BigDecimal getLineCoverage(final Job<?, ?> job) {
+	public BigDecimal getOverallCoverage(final Job<?, ?> job) {
 		final Run<?, ?> lastSuccessfulBuild = job.getLastSuccessfulBuild();
-		return BigDecimal.valueOf(getLinePercent(lastSuccessfulBuild));
+		return BigDecimal.valueOf(getOverallPercent(lastSuccessfulBuild));
 	}
 
-	private Double getLinePercent(final Run<?, ?> lastSuccessfulBuild) {
+	private Double getOverallPercent(final Run<?, ?> lastSuccessfulBuild) {
 		final Float percentageFloat = getPercentageFloat(lastSuccessfulBuild);
 		final double doubleValue = percentageFloat.doubleValue();
 
@@ -108,8 +105,13 @@ public class JaCoCoColumn extends ListViewColumn {
 			return 0f;
 		}
 
-		final Coverage ratio = action.getLineCoverage();
-		return ratio.getPercentageFloat();
+		if (!action.hasLineCoverage() || action.getBranchCoverage().getTotal() == 0) {
+			return 100f;
+		}
+		final int dividend = action.getBranchCoverage().getCovered() + action.getBranchCoverage().getMissed() + action.getLineCoverage().getCovered();
+		final int divisor = (2 * action.getLineCoverage().getTotal()) + action.getBranchCoverage().getTotal();
+
+		return (float) (dividend / divisor);
 	}
 
 	@Extension
@@ -126,7 +128,7 @@ public class JaCoCoColumn extends ListViewColumn {
 				final JSONObject formData) throws FormException {
 			return new JaCoCoColumn();
 		}
-		
+
 		@Override
 		public boolean shownByDefault() {
 			return false;
@@ -134,7 +136,7 @@ public class JaCoCoColumn extends ListViewColumn {
 
 		@Override
 		public String getDisplayName() {
-			return "JaCoCo Line Coverage";
+			return "JaCoCo Overall Coverage";
 		}
 	}
 }
